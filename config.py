@@ -4,6 +4,7 @@ class Config:
     DEBUG = False
     TESTING = False
     SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql://user@localhost/foo'
