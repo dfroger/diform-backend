@@ -19,7 +19,8 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     here = realpath(dirname(__file__))
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + join(here, 'test.db')
+    DATABASE_PATH = join(here, 'tests', 'test.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_PATH
 
 config = {
     'production': ProductionConfig,

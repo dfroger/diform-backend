@@ -5,9 +5,10 @@ from flask.ext import restless
 from config import config
 
 db = sqlalchemy.SQLAlchemy()
-manager = restless.APIManager()
+manager = restless.APIManager(flask_sqlalchemy_db=db)
 
 def create_app(config_name):
+
     from .model import User, Questionnaire
 
     app = Flask(__name__)
@@ -16,8 +17,10 @@ def create_app(config_name):
 
     db.init_app(app)
 
-    manager.init_app(app, flask_sqlalchemy_db=db)
-    manager.create_api(User, methods=['GET', 'POST', 'DELETE'])
-    manager.create_api(Questionnaire, methods=['GET', 'POST', 'DELETE'])
+    manager.init_app(app)
+    with app.app_context():
+        manager.create_api(User, methods=['GET', 'POST', 'DELETE'], app=app)
+        manager.create_api(Questionnaire, methods=['GET', 'POST', 'DELETE'],
+                           app=app)
 
     return app

@@ -3,13 +3,15 @@ import os
 from os.path import isfile
 import unittest
 
-from app import create_app, db
+from app import create_app, db, util
+from config import config
 
 class TestApp(unittest.TestCase):
 
     def setUpClass():
-        if isfile('test.db'):
-            os.remove('test.db')
+        fp = config['testing'].DATABASE_PATH
+        if isfile(fp):
+            os.remove(fp)
 
     def setUp(self):
         self.app = create_app('testing')
@@ -21,10 +23,24 @@ class TestApp(unittest.TestCase):
     def tearDown(self):
         self.ctx.pop()
 
+    def test_has_user_api(self):
+        for endpoint, methods, rule in util.list_routes(self.app):
+            if rule.startswith('/api/user/'):
+                break
+        else:
+            raise AssertionError("No rule for /api/user/")
+
+    def test_has_questionnaire_api(self):
+        for endpoint, methods, rule in util.list_routes(self.app):
+            if rule.startswith('/api/questionnaire/'):
+                break
+        else:
+            raise AssertionError("No rule for /api/questionnaire/")
+
     def test_create_user_and_questionnaire(self):
         # Create a new user: David.
         user = {'name': 'David'}
-        self.client.post('/api/user', data = json.dumps(user),
+        r = self.client.post('/api/user', data = json.dumps(user),
                          headers = {'content-type': 'application/json'},)
 
         # Get The list of users.
@@ -34,6 +50,7 @@ class TestApp(unittest.TestCase):
         # Check list of users contains David.
         self.assertEqual(data['num_results'], 1)
         self.assertEqual(data['objects'][0]['name'], 'David')
+        #print(data['objects'][0])
 
         # Create a new questionnaire.
         questionnaire = {
